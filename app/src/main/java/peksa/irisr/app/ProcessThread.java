@@ -14,9 +14,16 @@ import java.lang.ref.WeakReference;
 
 public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
 
-    private Bitmap takenPicture;
+    private BitmapArray takenPicture;
     private final WeakReference<ImageView> imageViewReference; // referencja do ImageView z obrazkiem
     private final WeakReference<ProgressBar> progressBarReference;
+
+    public ProcessThread(Bitmap takenPic,ImageView imageView,ProgressBar progressBar) throws InterruptedException {
+        progressBar.setVisibility(View.VISIBLE);
+        imageViewReference = new WeakReference<ImageView>(imageView);
+        progressBarReference = new WeakReference<ProgressBar>(progressBar);
+        takenPicture = new BitmapArray(takenPic);
+    }
 
     @Override
     protected void onPostExecute(Bitmap bitmap) { // co robic jak skonczy pracę, automatycznie łapie bitmapę z doInBackground
@@ -39,20 +46,14 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
         //rotate(); // when taking landscape picture you don't need to rotate
 
         doGrayScale();
-
-        //doSobel();
+        doSobel();
 
         //doBinarization(binType.iris);
         System.err.println("Worth it motherfuckers");
-        return takenPicture;
+        return takenPicture.toBitmap();
     }
 
-    public ProcessThread(Bitmap takenPic,ImageView imageView,ProgressBar progressBar) throws InterruptedException {
-        progressBar.setVisibility(View.VISIBLE);
-        imageViewReference = new WeakReference<ImageView>(imageView);
-        progressBarReference = new WeakReference<ProgressBar>(progressBar);
-        takenPicture = takenPic;
-    }
+
 
     private enum binType {
         iris, pupil
@@ -64,7 +65,7 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
             String filePath = Environment.getExternalStorageDirectory() + "/" + name + ".jpg";
             FileOutputStream fOut;
             fOut = new FileOutputStream(filePath);
-            takenPicture.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            takenPicture.toBitmap().compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.flush();
             fOut.close();
 
@@ -89,8 +90,7 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
     }
 
     public void doSobel() {
-        Bitmap bmOut = Bitmap.createBitmap(takenPicture.getWidth(), takenPicture.getHeight(), takenPicture.getConfig());
-
+        BitmapArray bmOut = new BitmapArray(takenPicture);
         int A;
         int pixelColor;
 
@@ -116,7 +116,7 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
                 bmOut.setPixel(x, y, Color.argb(A, N, N, N));
             }
         }
-        takenPicture = bmOut;
+        takenPicture = new BitmapArray(bmOut);
     }
 
     private void doBinarization(binType type) {
@@ -161,8 +161,8 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
     private void rotate() {
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
-        Bitmap tmp = Bitmap.createBitmap(takenPicture, 0, 0, takenPicture.getWidth(), takenPicture.getHeight(), matrix, true);
-        takenPicture = tmp;
+        Bitmap tmp = Bitmap.createBitmap(takenPicture.toBitmap(), 0, 0, takenPicture.getWidth(), takenPicture.getHeight(), matrix, true);
+        takenPicture = new BitmapArray(tmp);
     }
 
 
@@ -171,7 +171,7 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
     }
 
     public Bitmap getProcessed() {
-        return takenPicture;
+        return takenPicture.toBitmap();
     }
 
 
