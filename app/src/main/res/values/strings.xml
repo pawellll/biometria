@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Iris</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Take picture</string>
+    <string name="action_exit">Exit</string>
+    <string name="mask">Picture</string>
+    <string name="leftButton">Left button</string>
+    <string name="rightButton">Right button</string>
+    <string name="action_process">Process</string>
+    <string name="action_setExample">Set example picture</string>
+
+</resources>

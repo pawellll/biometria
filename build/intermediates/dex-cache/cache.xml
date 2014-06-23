@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/home/pawel/Desktop/agh/Biometria/projekt/IrisR/app/build/intermediates/pre-dexed/debug/classes-632a85d249259ed4e1053c57fa5a20d4b5fad206.jar"
+        jar="/home/pawel/Desktop/agh/Biometria/projekt/IrisR/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
+    <item
+        dex="/home/pawel/Desktop/agh/Biometria/projekt/IrisR/app/build/intermediates/pre-dexed/debug/classes-f2ab6294b5de023f3f4a3262f94b99aa02fccf96.jar"
+        jar="/home/pawel/Desktop/agh/Biometria/projekt/IrisR/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/19.1.0/classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="af4cc326e6cd92f88db12298767e521743aedd36"/>
+    <item
+        dex="/home/pawel/Desktop/agh/Biometria/projekt/IrisR/app/build/intermediates/pre-dexed/debug/support-v4-19.1.0-1bd09adae01d10f8f097a7c54535018843cfa550.jar"
+        jar="/opt/android-studio/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+
+</pre-dex-items>
