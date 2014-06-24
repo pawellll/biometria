@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import java.util.Arrays;
 
 /**
- * Created by Witold on 14.06.14.
+ * Created by Witold Matuszek on 14.06.14.
  */
 public class BitmapArray {
 

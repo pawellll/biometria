@@ -52,7 +52,9 @@ public class Main extends ActionBarActivity {
         Bitmap bitmap;
         try {
             bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, mImageUri);
-            takenPictureBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true); // because I want it mutable
+            takenPictureBitmap = Util.resizeBitmap(bitmap,1024);
+            bitmap.recycle(); // to save memory
+
             imageView.setImageBitmap(takenPictureBitmap);
         } catch (Exception e) {
             Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT).show();
