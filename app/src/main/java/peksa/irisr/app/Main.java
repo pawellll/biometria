@@ -163,12 +163,17 @@ public class Main extends ActionBarActivity {
         }else if(id== R.id.action_setExample){
             takenPictureBitmap=((BitmapDrawable) getResources().getDrawable(R.drawable.example)).getBitmap();
             takenPictureView.setImageBitmap(takenPictureBitmap);
+            return true;
         } else if (id == R.id.action_process) {
 
             try {
                 ProcessThread thread = new ProcessThread(takenPictureBitmap,takenPictureView,mProgressBar);
                 thread.execute();
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception e){
+                // System.err.println(e.getMessage());
+                mProgressBar.setVisibility(View.INVISIBLE);
                 e.printStackTrace();
             }
             return true;

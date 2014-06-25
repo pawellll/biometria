@@ -34,5 +34,9 @@ public class Util {
         return resizedBitmap;
     }
 
+    static double calcDistance(Point a, Point b){
+        return Math.hypot(b.getX()-a.getX(),b.getY()-a.getY());
+    }
+
 
 }

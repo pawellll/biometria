@@ -53,4 +53,5 @@ public class BitmapArray {
         public int[] getARR() {
             return ARR;
         }
+        public void setARR(int[] arr){ ARR = arr; }
     }
