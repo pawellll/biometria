@@ -7,13 +7,11 @@ package peksa.irisr.app;
 
 import android.graphics.Color;
 
-/**
- * Created by Magda on 2014-06-19.
- */
 public class Normalization {
     public static BitmapArray process(BitmapArray im, int x0, int y0, int r_min, int r_max) {
         final int width = 360;
         final int height = r_max - r_min;
+        System.err.println(width+"x"+height);
         if (height <= 0 || x0 < 0 || y0 < 0 || x0 >= im.getWidth() || y0 >= im.getHeight()) {
             return null;
         }
@@ -38,6 +36,7 @@ public class Normalization {
                 }
             }
         }
+
         return ret;
     }
 }

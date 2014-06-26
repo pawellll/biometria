@@ -43,18 +43,8 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... params) {
-        /*
-        HoughWersjaElipsa hough = new HoughWersjaElipsa();
-        Bitmap grey = GreyScale.process(compressedImage);
-        Bitmap greyGauss = GaussianFilter.process(grey);
-        Bitmap BinarizationPupil = Binarization.process(greyGauss, "Pupil");
-        Bitmap BinarizationIris = Binarization.process(greyGauss, "Iris");
-        Bitmap sobelPupil = Sobel.process(BinarizationPupil);
-        Bitmap sobelIris = Sobel.process(BinarizationIris);
-        Circle pupil = hough.H(sobelPupil,30,70);
-        Circle iris = hough.H(sobelIris, 40, 70 );
-         */
 
+        /*
         doGrayScale(workingPicture);
         BitmapArray grayPicture = new BitmapArray(workingPicture);
         doGaussianBlur(workingPicture);
@@ -62,37 +52,42 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
         BitmapArray iris = new BitmapArray(workingPicture);
         BitmapArray pupil = new BitmapArray(workingPicture);
 
-        doBinarization(iris,binType.iris);
-        doBinarization(pupil,binType.pupil);
+        doBinarization(iris, binType.iris);
+        doBinarization(pupil, binType.pupil);
         System.err.println("1");
         doSobel(iris);
         doSobel(pupil);
         System.err.println("2");
         HoughElipse hough = new HoughElipse();
 
-        Circle pupilCircle = hough.H(pupil,30,70);
+        Circle pupilCircle = hough.H(pupil, 30, 70);
         System.err.println("3");
-        Circle irisCircle = hough.H(iris,40,50);
+        Circle irisCircle = hough.H(iris, 40, 50);
         System.err.println("4");
-        if(pupilCircle == null && irisCircle !=null)
-        {
+        if (pupilCircle == null && irisCircle != null) {
             System.out.println("sama teczowka");
-            pupilCircle = new Circle(irisCircle.getCenter(),irisCircle.getR()/3);
-        }
-        else if(pupilCircle != null && irisCircle ==null)
-        {
+            pupilCircle = new Circle(irisCircle.getCenter(), irisCircle.getR() / 3);
+        } else if (pupilCircle != null && irisCircle == null) {
             System.out.println("sama źrenica");
-            irisCircle = new Circle(pupilCircle.getCenter(),pupilCircle.getR()*2);
+            irisCircle = new Circle(pupilCircle.getCenter(), pupilCircle.getR() * 2);
         }
 
 
-
-
-
-        BitmapArray[] IRISBOW = hough.IrisBow(grayPicture,pupilCircle,irisCircle);
+        BitmapArray[] IRISBOW = hough.IrisBow(grayPicture, pupilCircle, irisCircle);
 
         System.err.println("Worth it motherfuckers");
-        return IRISBOW[0].toBitmap();
+        workingPicture = IRISBOW[1];
+        save("test");
+        */
+
+        workingPicture.cut(360,38);
+        //doGrayScale(workingPicture);
+        FeatureExtraction featureExtraction = new FeatureExtraction();
+        featureExtraction.process(workingPicture);
+
+        return workingPicture.toBitmap();
+
+
     }
 
 
@@ -157,11 +152,6 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
                 resultPicture.setPixel(x, y, Color.argb(alpha, N, N, N));
             }
         }
-        for(int i=0;i<resultPicture.getWidth();++i){
-            for(int j=0;j<resultPicture.getHeight();++j){
-                BitmapIn.setPixel(i,j,resultPicture.getPixel(i,j));
-            }
-        }
 
         int[] tmp = resultPicture.getARR();
         BitmapIn.setARR(tmp);
@@ -224,7 +214,7 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
         int width = BitmapIn.getWidth();
         int height = BitmapIn.getHeight();
         double P = 0;
-        
+
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 int pixel = BitmapIn.getPixel(i, j);
@@ -245,6 +235,62 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
         bitmapIn.setARR(result);
     }
 
+    private void doHistogramEqualization(BitmapArray bitmapIn) {
+        int[] h = new int[256];
+        int pixelColor, color, alpha, newColor;
+
+        int r = bitmapIn.getWidth() * bitmapIn.getHeight();
+        h = getHistogram(bitmapIn);
+
+        double d[] = new double[256];
+        for (int i = 0; i < 256; ++i) {
+            for (int j = 0; j < i; ++j) {
+                d[i] = d[i] + h[j];
+            }
+        }
+
+        for (int i = 0; i < d.length; ++i) {
+            d[i] = d[i] / r;
+        }
+
+        int n = 0;
+        while (d[n] <= 0.0) {
+            ++n;
+        }
+        double minD = d[n];
+
+        int lut[] = new int[256];
+        for (int i = 0; i < 256; ++i) {
+            lut[i] = (int) (Math.floor(((d[i] - minD) / (1.0 - minD)) * 255));
+        }
+
+
+        for (int i = 0; i < bitmapIn.getWidth(); ++i) {
+            for (int j = 0; j < bitmapIn.getHeight(); ++j) {
+                pixelColor = bitmapIn.getPixel(i, j);
+                color = Color.red(pixelColor);
+                alpha = Color.alpha(pixelColor);
+                newColor = lut[color];
+                bitmapIn.setPixel(i, j, Color.argb(alpha, newColor, newColor, newColor));
+            }
+        }
+
+    }
+
+    private int[] getHistogram(BitmapArray bitmapIn) {
+        int[] h = new int[256];
+        int pixelColor, color;
+
+        for (int i = 0; i < bitmapIn.getWidth(); ++i) {
+            for (int j = 0; j < bitmapIn.getHeight(); ++j) {
+                pixelColor = bitmapIn.getPixel(i, j);
+                color = Color.red(pixelColor);
+                h[color]++;
+            }
+        }
+
+        return h;
+    }
 
 
     public Bitmap getProcessed() {

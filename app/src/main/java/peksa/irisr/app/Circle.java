@@ -4,7 +4,7 @@ package peksa.irisr.app;
  * Created by pawel on 24.06.14.
  */
 
-class Circle{
+public class Circle{
 
     private int x;
     private int y;
