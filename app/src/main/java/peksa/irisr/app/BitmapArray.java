@@ -42,7 +42,12 @@ public class BitmapArray {
 
     // taka sama metoda jak w bitmapie
     public int getPixel(int i, int j) {
-        return ARR[i + j * W];
+        try {
+            return ARR[i + j * W];
+        }catch(Exception e){
+            System.err.println(i+" "+j+" | "+W+" "+H);
+            return 0;
+        }
     }
 
     // taka sama metoda jak w bitmapie

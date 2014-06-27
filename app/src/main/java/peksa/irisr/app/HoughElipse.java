@@ -20,24 +20,23 @@ public class HoughElipse {
         int height = src.getHeight();
         int width = src.getWidth();
         // 1. Store all edge pixels in a one dimensional array.
-        ArrayList<Point> WHITEPIX = new ArrayList<Point>(); // sprawdzone na bank dobrze
+        ArrayList<Point> whitePixels = new ArrayList<Point>();
         for (int i = width / 5; i < width - (width / 5); i++) {
             for (int j = height / 5; j < height - height / 5; j++) {
                 int pixel = src.getPixel(i, j);
                 if (Color.red(pixel) == 255) // jezeli jest bialy
                 {
-                    WHITEPIX.add(new Point(i, j));
+                    whitePixels.add(new Point(i, j));
                 }
             }
         }
 
-        System.out.println("Dodalam biale do tablicy, rozmiar tablicy to: " + WHITEPIX.size());
 
         int[] acc = new int[aMax + 1];
-        for (int k = 0; k < WHITEPIX.size(); k++) { // dla kazdego bialego piksela
-            for (int p = 0; p < WHITEPIX.size(); p++) {
-                Point temp = WHITEPIX.get(k);
-                Point candidate = WHITEPIX.get(p);
+        for (int k = 0; k < whitePixels.size(); k++) {
+            for (int p = 0; p < whitePixels.size(); p++) {
+                Point temp = whitePixels.get(k);
+                Point candidate = whitePixels.get(p);
                 final double a = Util.calcDistance(temp, candidate) / 2;
                 if (temp.getX() + 2 * aMin <= candidate.getX() && Math.abs(temp.getY() - candidate.getY()) < 1) // tak zeby byly mniej wiecej na tym samym poziomie
                 {
@@ -48,9 +47,9 @@ public class HoughElipse {
                         final int x0 = (candidate.getX() + temp.getX()) / 2; //srodek elipsy
                         final int y0 = (candidate.getY() + temp.getY()) / 2;
                         Point center = new Point(x0, y0);
-                        for (int i = 0; i < WHITEPIX.size(); i++) { // count how many points are on the ellipse
-                            if (WHITEPIX.get(i) != temp && WHITEPIX.get(i) != candidate) {
-                                int d = (int) Util.calcDistance(WHITEPIX.get(i), center);
+                        for (int i = 0; i < whitePixels.size(); i++) { // count how many points are on the ellipse
+                            if (whitePixels.get(i) != temp && whitePixels.get(i) != candidate) {
+                                int d = (int) Util.calcDistance(whitePixels.get(i), center);
                                 if (d > aMin && d < aMax) {
                                     if (Math.abs(a - d) < 3) {
                                         acc[(int) d]++; // licze dla ilu pikseli udalo sie policzyc takie samo b.*/
