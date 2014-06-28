@@ -1,20 +1,7 @@
 package peksa.irisr.app;
 
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.os.Build;
-import android.util.Log;
-import android.hardware.*;
 
-
-import java.lang.reflect.Method;
-
-import static android.graphics.Camera.*;
-
-/**
- * Created by pawel on 09.06.14.
- */
 public class Util {
     static Bitmap resizeBitmap(Bitmap inBitmap, final int maxSize){
         int outWidth;
@@ -34,8 +21,8 @@ public class Util {
         return resizedBitmap;
     }
 
-    static double calcDistance(Point a, Point b){
-        return Math.hypot(b.getX()-a.getX(),b.getY()-a.getY());
+    static int calcDistance(Point a, Point b){
+        return (int) Math.hypot(b.getX()-a.getX(),b.getY()-a.getY());
     }
 
 

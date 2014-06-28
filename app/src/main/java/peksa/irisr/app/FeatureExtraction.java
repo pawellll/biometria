@@ -18,13 +18,16 @@ public class FeatureExtraction {
     FeatureExtraction() {
         groups = new ArrayList<Integer[]>();
         lines = new ArrayList<Integer[]>();
+        cumulativeSums = new ArrayList<Integer[]>();
         code = new ArrayList<Integer>();
     }
 
-    public void process(BitmapArray bitmapIn) {
+    public ArrayList<Integer> process(BitmapArray bitmapIn) {
         fillValues(bitmapIn);
         linesToGroups();
         calculateCumulativeSums();
+        calculateCode();
+        return code;
     }
 
     private void calculateCumulativeSums() {
@@ -43,12 +46,36 @@ public class FeatureExtraction {
         }
     }
 
-    private void calculateCode(){
-        for(Integer[] groupSum:cumulativeSums){
-            for(int i=0;i<groupSum.length;++i){
+    private void calculateCode() {
+        for (Integer[] groupSum : cumulativeSums) {
+            int maxIndex = maxValueIndex(groupSum);
+            int minIndex = minValueIndex(groupSum);
+            for (int i = 0; i < 5; ++i) {
+                if (isBeetween(i, maxIndex, minIndex)) {
+                    if (groupSum[i + 1] > groupSum[i]) {
+                        code.add(1);
+                    } else {
+                        code.add(2);
+                    }
+                } else {
+                    code.add(0);
+                }
 
             }
         }
+    }
+
+    private boolean isBeetween(int value, int maxIndex, int minIndex) {
+        if (maxIndex > minIndex) {
+            return inRange(minIndex, maxIndex, value);
+        } else {
+            return inRange(maxIndex, minIndex, value);
+        }
+
+    }
+
+    boolean inRange(double min, double max, double arg) {
+        return arg > min && arg < max;
     }
 
     private double calcAverage(Integer[] t) {
@@ -73,7 +100,7 @@ public class FeatureExtraction {
             if (bitmapIn.getPixel(0, i) == Color.BLUE) {
                 break;
             }
-            System.err.println("wiersz numer:" + i);
+
             newBand = new Integer[length];
             for (int z = 0; z < newBand.length; ++z) {
                 newBand[z] = new Integer(0);
@@ -147,25 +174,21 @@ public class FeatureExtraction {
         }
     }
 
-    private Integer maxValue(Integer[] t) {
-        int max = t[0];
-        int tmp;
-        for (int i = 1; i < t.length; ++i) {
-            tmp = t[i];
-            if(tmp>max){
-                max = tmp;
+    private Integer maxValueIndex(Integer[] t) {
+        int max = 0;
+        for (int i = 0; i < t.length; ++i) {
+            if (t[i] > t[max]) {
+                max = i;
             }
         }
         return max;
     }
 
-    private Integer minValue(Integer[] t) {
-        int min = t[0];
-        int tmp;
-        for (int i = 1; i < t.length; ++i) {
-            tmp = t[i];
-            if(tmp<min){
-                min = tmp;
+    private Integer minValueIndex(Integer[] t) {
+        int min = 0;
+        for (int i = 0; i < t.length; ++i) {
+            if (t[i] < t[min]) {
+                min = i;
             }
         }
         return min;

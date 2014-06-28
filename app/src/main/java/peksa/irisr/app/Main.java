@@ -161,7 +161,7 @@ public class Main extends ActionBarActivity {
         } else if (id == R.id.action_exit) {
             System.exit(0);
         }else if(id== R.id.action_setExample){
-            takenPictureBitmap=((BitmapDrawable) getResources().getDrawable(R.drawable.test)).getBitmap();
+            takenPictureBitmap=((BitmapDrawable) getResources().getDrawable(R.drawable.example)).getBitmap();
             takenPictureView.setImageBitmap(takenPictureBitmap);
             return true;
         } else if (id == R.id.action_process) {

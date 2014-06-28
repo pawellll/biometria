@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 
 import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
 
@@ -44,47 +45,60 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(Void... params) {
 
-        /*
+        save("1",workingPicture);
         doGrayScale(workingPicture);
+
+        save("2",workingPicture);
         BitmapArray grayPicture = new BitmapArray(workingPicture);
+
         doGaussianBlur(workingPicture);
+        save("3",workingPicture);
 
         BitmapArray iris = new BitmapArray(workingPicture);
+        save("4_1",iris);
         BitmapArray pupil = new BitmapArray(workingPicture);
+        save("4_2",pupil);
 
         doBinarization(iris, binType.iris);
+        save("5_1",iris);
         doBinarization(pupil, binType.pupil);
-        System.err.println("1");
+        save("5_2",pupil);
+
         doSobel(iris);
+        save("6_1",iris);
         doSobel(pupil);
-        System.err.println("2");
+        save("6_2",iris);
+
         HoughElipse hough = new HoughElipse();
 
         Circle pupilCircle = hough.H(pupil, 30, 70);
         System.err.println("3");
         Circle irisCircle = hough.H(iris, 40, 50);
         System.err.println("4");
+
         if (pupilCircle == null && irisCircle != null) {
-            System.out.println("sama teczowka");
+
             pupilCircle = new Circle(irisCircle.getCenter(), irisCircle.getR() / 3);
         } else if (pupilCircle != null && irisCircle == null) {
-            System.out.println("sama źrenica");
-            irisCircle = new Circle(pupilCircle.getCenter(), pupilCircle.getR() * 2);
-        }
 
+            irisCircle = new Circle(pupilCircle.getCenter(), pupilCircle.getR() * 2);
+        }else if(pupilCircle == null && irisCircle == null){
+            System.err.println("Blah");
+            return workingPicture.toBitmap();
+        }
 
         BitmapArray[] IRISBOW = hough.IrisBow(grayPicture, pupilCircle, irisCircle);
 
-        System.err.println("Worth it motherfuckers");
+
         workingPicture = IRISBOW[1];
-        save("test");
-        */
+        save("test",workingPicture);
+
 
         workingPicture.cut(360,38);
-        //doGrayScale(workingPicture);
         FeatureExtraction featureExtraction = new FeatureExtraction();
-        featureExtraction.process(workingPicture);
-
+        ArrayList<Integer> a = featureExtraction.process(workingPicture);
+        Verification verification = new Verification(a,a);
+        verification.process();
         return workingPicture.toBitmap();
 
 
@@ -96,12 +110,12 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
     }
 
 
-    private void save(String name) {
+    private void save(String name,BitmapArray bitmapIn) {
         try {
             String filePath = Environment.getExternalStorageDirectory() + "/" + name + ".jpg";
             FileOutputStream fOut;
             fOut = new FileOutputStream(filePath);
-            workingPicture.toBitmap().compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            bitmapIn.toBitmap().compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.flush();
             fOut.close();
 
