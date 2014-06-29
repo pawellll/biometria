@@ -1,8 +1,5 @@
 package peksa.irisr.app;
 
-/**
- * Created by pawel on 24.06.14.
- */
 
 public class Circle{
 

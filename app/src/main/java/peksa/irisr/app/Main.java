@@ -15,10 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 
@@ -36,6 +40,7 @@ public class Main extends ActionBarActivity {
     private Uri mImageUri;
     private static final int PROGRESS_CONSTANT = 10000;
     private ProgressBar mProgressBar;
+    private TextView mTextView;
 
     /**
      * ******************************************
@@ -52,7 +57,7 @@ public class Main extends ActionBarActivity {
         Bitmap bitmap;
         try {
             bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, mImageUri);
-            takenPictureBitmap = Util.resizeBitmap(bitmap,1024);
+            takenPictureBitmap = Util.resizeBitmap(bitmap, 1024);
             bitmap.recycle(); // to save memory
 
             imageView.setImageBitmap(takenPictureBitmap);
@@ -143,6 +148,8 @@ public class Main extends ActionBarActivity {
         takenPictureView = (ImageView) findViewById(R.id.takenPicture);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.INVISIBLE);
+        mTextView = (TextView) findViewById(R.id.titleText);
+        mTextView.setText(R.string.titleText);
     }
 
     @Override
@@ -160,23 +167,40 @@ public class Main extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_exit) {
             System.exit(0);
-        }else if(id== R.id.action_setExample){
-            takenPictureBitmap=((BitmapDrawable) getResources().getDrawable(R.drawable.example)).getBitmap();
+        } else if (id == R.id.action_setExample) {
+            takenPictureBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.example)).getBitmap();
             takenPictureView.setImageBitmap(takenPictureBitmap);
             return true;
         } else if (id == R.id.action_process) {
-
             try {
-                ProcessThread thread = new ProcessThread(takenPictureBitmap,takenPictureView,mProgressBar);
+                ProcessThread thread = new ProcessThread(takenPictureBitmap, takenPictureView, mProgressBar,mTextView, ProcessThread.mode.process);
                 thread.execute();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (Exception e){
-                // System.err.println(e.getMessage());
+            } catch (Exception e) {
                 mProgressBar.setVisibility(View.INVISIBLE);
                 e.printStackTrace();
             }
             return true;
+        } else if (id == R.id.action_add) {
+            takePicture();
+            try {
+                ProcessThread thread = new ProcessThread(takenPictureBitmap, takenPictureView, mProgressBar,mTextView, ProcessThread.mode.add);
+                thread.execute();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+        } else if (id == R.id.action_identify) {
+            try {
+                ProcessThread thread = new ProcessThread(takenPictureBitmap, takenPictureView, mProgressBar,mTextView, ProcessThread.mode.identify);
+                thread.execute();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                mTextView.setText("Coś poszło nie tak ! ");
+            }
+
         }
         return super.onOptionsItemSelected(item);
     }

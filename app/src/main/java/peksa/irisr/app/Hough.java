@@ -5,7 +5,7 @@ import android.graphics.Color;
 
 import java.util.ArrayList;
 
-public class HoughElipse {
+public class Hough {
 
     public Circle H(BitmapArray src, int amin, int amax) {
 
@@ -35,7 +35,7 @@ public class HoughElipse {
                 Point temp = WHITEPIX.get(k);
                 Point candidate = WHITEPIX.get(p);
                 final double a = Util.calcDistance(temp, candidate) / 2;
-                if (temp.getX() + 2 * aMin <= candidate.getX() && Math.abs(temp.getY() - candidate.getY()) < 1) // tak zeby byly mniej wiecej na tym samym poziomie
+                if (temp.getX() + 2 * aMin <= candidate.getX() && Math.abs(temp.getY() - candidate.getY()) < 2) // tak zeby byly mniej wiecej na tym samym poziomie
                 {
                     if (temp != candidate && (int) a < aMax && (int) a > aMin) {
                         for (int i = 0; i < acc.length; i++) {
@@ -49,14 +49,15 @@ public class HoughElipse {
                                 int d = Util.calcDistance(WHITEPIX.get(i), center);
                                 if (d > aMin && d < aMax) {
                                     if (Math.abs(a - d) < 3) {
-                                        acc[(int) d]++; // licze dla ilu pikseli udalo sie policzyc takie samo b.*/
+                                        acc[d]++; // licze dla ilu pikseli udalo sie policzyc takie samo b.*/
                                     }
                                 }
                             }
                         }
 
                         int max = max(acc);
-                        maxVotes = max + (int) a;
+
+
                         if (acc[max] > maxVotes) {
                             maxVotes = acc[max];
                             bestCircle = new Circle(center, (int) a);

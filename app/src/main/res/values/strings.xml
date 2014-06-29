@@ -10,5 +10,7 @@
     <string name="rightButton">Right button</string>
     <string name="action_process">Process</string>
     <string name="action_setExample">Set example picture</string>
-
+    <string name="action_identify">Identify</string>
+    <string name="action_add">Add to database</string>
+    <string name="titleText">Iris identification</string>
 </resources>

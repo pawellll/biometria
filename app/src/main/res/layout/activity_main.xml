@@ -4,25 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_alignParentTop="true"
+        android:textSize="25sp"
+        android:gravity="center"/>
 
+    <EditText
+        android:id="@+id/inputText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
 
     <ImageView
         android:id="@+id/takenPicture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:contentDescription="@string/mask"
-        />
+        android:contentDescription="@string/mask" />
 
     <ProgressBar
         android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        style="@style/Widget.AppCompat.ProgressBar"
-        />
-
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

@@ -8,22 +8,34 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
 
     private BitmapArray workingPicture;
     private final WeakReference<ImageView> imageViewReference; // referencja do ImageView z obrazkiem
     private final WeakReference<ProgressBar> progressBarReference;
-
-    public ProcessThread(Bitmap takenPic, ImageView imageView, ProgressBar progressBar) throws InterruptedException {
+    private final WeakReference<TextView> textViewReference;
+    private mode runMode;
+    private String message;
+    public ProcessThread(Bitmap takenPic, ImageView imageView, ProgressBar progressBar,TextView textView,mode runM) throws InterruptedException {
         progressBar.setVisibility(View.VISIBLE);
         imageViewReference = new WeakReference<ImageView>(imageView);
         progressBarReference = new WeakReference<ProgressBar>(progressBar);
+        textViewReference = new WeakReference<TextView>(textView);
         workingPicture = new BitmapArray(takenPic);
+        runMode = runM;
     }
 
     @Override
@@ -40,36 +52,116 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
                 progressBar.setVisibility(View.INVISIBLE);
             }
         }
+        if(textViewReference != null){
+            final TextView textView = textViewReference.get();
+            if(textView != null){
+                textView.setText(message);
+            }
+        }
     }
 
     @Override
     protected Bitmap doInBackground(Void... params) {
+        if(runMode == mode.process) {
+            try {
+                process();
+            }catch (IrisNotFoundException e){
+                message = "Nie udało się znaleźć tęczówki : |";
+            }
+        }else if(runMode == mode.identify){
 
-        save("1",workingPicture);
+            try {
+                ArrayList<Integer> mCode = process();
+                File directory = Environment.getDataDirectory();
+                ArrayList<String> names = new ArrayList<String>();
+                ArrayList<Integer[]> codes = new ArrayList<Integer[]>();
+
+                BufferedReader reader = new BufferedReader(new FileReader(directory+"data.dat"));
+
+                String line;
+                while((line=reader.readLine())!=null){
+                    names.add(line);
+                    codes.add(arrayListFromString(line));
+                }
+
+                Verification verification;
+
+                for(int i=0;i<names.size();++i){
+                    verification = new Verification(mCode,
+                            new ArrayList<Integer>(Arrays.asList(codes.get(i))));
+                    boolean test = verification.process();
+                    if(test==true){
+                        message="To jest "+names.get(i);
+                        break;
+                    }
+                }
+                message="Nie znalazłem kogoś takiego w bazie";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }else if(runMode == mode.add){
+            ArrayList<Integer> n = process();
+            File directory = Environment.getDataDirectory();
+            File file = null;
+            try {
+                file = File.createTempFile("data", "dat", directory);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            BufferedWriter writer;
+            try {
+                writer = new BufferedWriter(new FileWriter(new File(file.getPath())));
+                writer.write("NAME\n");
+                writer.write(n.toString()+"\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return workingPicture.toBitmap();
+    }
+
+    private Integer[] arrayListFromString(String line){
+        ArrayList<Integer> arrayCode = new ArrayList<Integer>();
+        line = line.substring(1,line.length()-1);
+        String[] numbers = line.split(",");
+        int numb;
+        for(int i=0;i<numbers.length;++i){
+            numb = Integer.valueOf(numbers[i].replaceAll(" ",""));
+            arrayCode.add(numb);
+        }
+        return arrayCode.toArray(new Integer[0]);
+    }
+
+    private ArrayList<Integer> process() throws IrisNotFoundException{
+
+        //save("1",workingPicture);
         doGrayScale(workingPicture);
 
-        save("2",workingPicture);
+        //save("2",workingPicture);
         BitmapArray grayPicture = new BitmapArray(workingPicture);
 
         doGaussianBlur(workingPicture);
-        save("3",workingPicture);
+        doGaussianBlur(workingPicture);
+        //save("3",workingPicture);
 
         BitmapArray iris = new BitmapArray(workingPicture);
-        save("4_1",iris);
+        //save("4_1",iris);
         BitmapArray pupil = new BitmapArray(workingPicture);
-        save("4_2",pupil);
+        //save("4_2",pupil);
 
         doBinarization(iris, binType.iris);
-        save("5_1",iris);
+        //save("5_1",iris);
         doBinarization(pupil, binType.pupil);
-        save("5_2",pupil);
+        //save("5_2",pupil);
 
         doSobel(iris);
-        save("6_1",iris);
+        //save("6_1",iris);
         doSobel(pupil);
-        save("6_2",iris);
+        //save("6_2",pupil);
 
-        HoughElipse hough = new HoughElipse();
+        Hough hough = new Hough();
 
         Circle pupilCircle = hough.H(pupil, 30, 70);
         System.err.println("3");
@@ -83,30 +175,30 @@ public class ProcessThread extends AsyncTask<Void, Void, Bitmap> {
 
             irisCircle = new Circle(pupilCircle.getCenter(), pupilCircle.getR() * 2);
         }else if(pupilCircle == null && irisCircle == null){
-            System.err.println("Blah");
-            return workingPicture.toBitmap();
+            throw new IrisNotFoundException();
         }
 
         BitmapArray[] IRISBOW = hough.IrisBow(grayPicture, pupilCircle, irisCircle);
 
 
         workingPicture = IRISBOW[1];
-        save("test",workingPicture);
+        //save("test",workingPicture);
 
 
         workingPicture.cut(360,38);
         FeatureExtraction featureExtraction = new FeatureExtraction();
-        ArrayList<Integer> a = featureExtraction.process(workingPicture);
-        Verification verification = new Verification(a,a);
-        verification.process();
-        return workingPicture.toBitmap();
-
-
+        ArrayList<Integer> c;
+        c = featureExtraction.process(workingPicture);
+        return c;
     }
 
 
     private enum binType {
         iris, pupil
+    }
+
+    enum mode{
+        identify,process,add
     }
 
 
